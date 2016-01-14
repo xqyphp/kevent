@@ -38,7 +38,7 @@ setnonblocking(socket_t sockfd)
 	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 }
 
-socket_tserver_create(const char* hostname, int portnumber)
+socket_tserver_create(const char* hostname, int portnumber)
 {
 
 	struct sockaddr_in server_addr;
@@ -60,8 +60,8 @@ socket_tserver_create(const char* hostname, int portnumber)
 		return -1;
 	}
 	return sockfd;
-}
-void 
+}
+void
 server_listen(socket_t serverfd)
 {
 	if (listen(serverfd, 20))
@@ -75,7 +75,7 @@ status_t
 event_manager_init(event_manager_t* event_pool, socket_t server_socket, event_callback callback)
 {
 	HANDLE completionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
-	if (NULL == completionPort) {  
+	if (NULL == completionPort) {
 		return K_ERROR;
 	}
 	event_pool->completionPort = completionPort;
@@ -85,9 +85,10 @@ event_manager_init(event_manager_t* event_pool, socket_t server_socket, event_ca
 	return K_SUCCESS;
 }
 
-voidevent_magager_destroy(event_manager_t* manager)
+void
+event_magager_destroy(event_manager_t* manager)
 {
-	
+
 }
 
 status_t  event_dispatch(event_manager_t* event_pool)
@@ -111,13 +112,13 @@ status_t  event_dispatch(event_manager_t* event_pool)
 
 		RemoteLen = sizeof(saRemote);
 		acceptSocket = accept(event_pool->server_socket, (SOCKADDR*)&saRemote, &RemoteLen);
-		if (SOCKET_ERROR == acceptSocket) {  
+		if (SOCKET_ERROR == acceptSocket) {
 			printf("acceptSocket Error->%d\n", GetLastError());
 			return -1;
 		}
 
-	
-		PerHandleData = (LPPER_HANDLE_DATA)GlobalAlloc(GPTR, sizeof(PER_HANDLE_DATA));  
+
+		PerHandleData = (LPPER_HANDLE_DATA)GlobalAlloc(GPTR, sizeof(PER_HANDLE_DATA));
 		PerHandleData->socket = acceptSocket;
 		PerHandleData->pool = event_pool;
 		memcpy(&PerHandleData->ClientAddr, &saRemote, RemoteLen);
@@ -129,7 +130,7 @@ status_t  event_dispatch(event_manager_t* event_pool)
 		ZeroMemory(&(PerIoData->overlapped), sizeof(OVERLAPPED));
 		PerIoData->databuff.len = 1024;
 		PerIoData->databuff.buf = PerIoData->buffer;
-		PerIoData->operationType = 0;    // read  
+		PerIoData->operationType = 0;    // read
 
 		DWORD RecvBytes;
 		DWORD Flags = 0;

@@ -38,16 +38,20 @@ typedef struct event_manager_s
 #include <WinSock2.h>
 #include <Windows.h>
 #endif
-
-void 
+
+void
 setnonblocking(socket_t sockfd);
 
-int server_create(const char* hostname, int portnumber);
-void server_listen(socket_t serverfd);
+socket_t
+server_create(const char* hostname, int portnumber);
+void
+server_listen(socket_t serverfd);
 
 status_t
-event_manager_init(event_manager_t* event_manager,socket_t serverfd, event_callback callback);
-status_t  event_dispatch(event_manager_t* event_manager);
-void event_magager_destroy(event_manager_t* manager);
+event_manager_init(event_manager_t* event_manager,socket_t serverfd, event_callback callback);
+status_t
+event_dispatch(event_manager_t* event_manager);
+
+void
+event_magager_destroy(event_manager_t* manager);
 #endif
-
