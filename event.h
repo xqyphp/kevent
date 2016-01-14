@@ -39,19 +39,19 @@ typedef struct event_manager_s
 #include <Windows.h>
 #endif
 
-void
-setnonblocking(socket_t sockfd);
-
 socket_t
 server_create(const char* hostname, int portnumber);
 void
 server_listen(socket_t serverfd);
+
+socket_t
+client_create(const char* hostname, int portnumber);
 
 status_t
 event_manager_init(event_manager_t* event_manager,socket_t serverfd, event_callback callback);
 status_t
 event_dispatch(event_manager_t* event_manager);
 
-void
+status_t
 event_magager_destroy(event_manager_t* manager);
 #endif

@@ -40,7 +40,10 @@ socket_destory();
 errno_t
 socket_geterr();
 
-errno_t
-socket_nobblock(socket_t s);
+int
+setnonblocking(socket_t sockfd);
+
+socket_t
+client_create(const char* hostname, int portnumber);
 
 #endif

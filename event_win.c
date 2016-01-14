@@ -9,6 +9,7 @@
 
 #include "event.h"
 #include "socket.h"
+#include <Ws2tcpip.h>
 
 typedef struct
 {
@@ -30,47 +31,6 @@ typedef struct
 
 static DWORD WINAPI ServerWorkThread(LPVOID IpParam);
 
-
-void
-setnonblocking(socket_t sockfd)
-{
-	int opt = 1;
-	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-}
-
-socket_tserver_create(const char* hostname, int portnumber)
-{
-
-	struct sockaddr_in server_addr;
-	memset(&server_addr, 0, sizeof(server_addr));
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = htons(INADDR_ANY);
-	server_addr.sin_port = htons(portnumber);
-
-	int sockfd = socket(PF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0)
-	{
-		printf("Create Socket Failed!");
-		return -1;
-	}
-
-	if (bind(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)))
-	{
-		printf("Server Bind Port : %d Failed!", portnumber);
-		return -1;
-	}
-	return sockfd;
-}
-void
-server_listen(socket_t serverfd)
-{
-	if (listen(serverfd, 20))
-	{
-		printf("Server Listen Failed!");
-		exit(1);
-	}
-}
-
 status_t
 event_manager_init(event_manager_t* event_pool, socket_t server_socket, event_callback callback)
 {
@@ -85,10 +45,12 @@ event_manager_init(event_manager_t* event_pool, socket_t server_socket, event_ca
 	return K_SUCCESS;
 }
 
-void
+status_t
 event_magager_destroy(event_manager_t* manager)
 {
-
+	manager->callback = K_NULL;
+	CloseHandle(manager->completionPort);
+	close(manager->server_socket);
 }
 
 status_t  event_dispatch(event_manager_t* event_pool)
