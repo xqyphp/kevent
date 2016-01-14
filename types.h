@@ -13,7 +13,6 @@
 
 typedef unsigned       bool_t;
 typedef int            status_t;
-typedef unsigned int   size_t;
 
 #define K_SUCCESS      0
 #define K_ERROR       -1

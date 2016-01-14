@@ -25,7 +25,7 @@ typedef void(*event_callback)(socket_event_t* data);
 typedef struct event_manager_s
 {
 #ifdef linux
-	int epoll;
+	int epfd;
 #else
 	HANDLE completionPort;
 #endif

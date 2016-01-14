@@ -1,6 +1,8 @@
 #include "socket.h"
 #include "types.h"
 
+#include <assert.h>
+#include <string.h>
 
 #ifndef linux
 #include <Ws2tcpip.h>
@@ -112,7 +114,7 @@ client_create(const char* hostname, int portnumber)
 
 	if (connect(client_socket, (struct sockaddr*)&server_addr, server_addr_length) < 0)
 	{
-		printf("Can Not Connect To %s!\n", 6666);
+		printf("Can Not Connect To %d!\n", 6666);
 		return K_ERROR;
 	}
 	return client_socket;
@@ -123,7 +125,7 @@ socket_t
 server_create(const char* hostname, int portnumber)
 {
 	struct sockaddr_in server_addr;
-	memset(&server_addr, 0, sizeof(server_addr));
+	bzero(&server_addr,sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.s_addr = htons(INADDR_ANY);
 	server_addr.sin_port = htons(portnumber);

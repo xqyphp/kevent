@@ -11,7 +11,7 @@
 
 void my_event_callback(socket_event_t* data)
 {
-	printf("callback->%s\n",data->data_ptr);
+	printf("callback->%s\n",(char*)data->data_ptr);
 }
 
 
@@ -45,7 +45,7 @@ int main()
 {
 	socket_init();
 
-	test_client();
+        test_server();
 
 	socket_destory();
 
