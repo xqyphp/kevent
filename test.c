@@ -7,14 +7,11 @@
 #include <stdlib.h>        // for exit
 #include <string.h>        // for bzero
 
-#define HELLO_WORLD_SERVER_PORT    6666 
-#define LENGTH_OF_LISTEN_QUEUE	   20
-#define BUFFER_SIZE                1024
-#define FILE_NAME_MAX_SIZE         512
+#define SERVER_PORT 6666
 
 void my_event_callback(socket_event_t* data)
 {
-	printf("callback->%s",data->data);
+	printf("callback->%s",data->data_ptr);
 }
 
 
@@ -22,49 +19,29 @@ int main()
 {
 	socket_init();
 
-	//设置一个socket地址结构server_addr,代表服务器internet地址, 端口
-	struct sockaddr_in server_addr;
-	memset(&server_addr,0, sizeof(server_addr)); //把一段内存区的内容全部设置为0
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = htons(INADDR_ANY);
-	server_addr.sin_port = htons(HELLO_WORLD_SERVER_PORT);
+	socket_t serverfd = server_create("127.0.0.1", SERVER_PORT);
+	setnonblocking(serverfd);
 
-	//创建用于internet的流协议(TCP)socket,用server_socket代表服务器socket
-	int server_socket = socket(PF_INET, SOCK_STREAM, 0);
-	if (server_socket < 0)
-	{
-		printf("Create Socket Failed!");
-		exit(1);
-	}
-	{
-		int opt = 1;
-		setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-	}
+	server_listen(serverfd);
 
-	//把socket和socket地址结构联系起来
-	if (bind(server_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)))
-	{
-		printf("Server Bind Port : %d Failed!", HELLO_WORLD_SERVER_PORT);
-		exit(1);
-	}
+	event_manager_t event_manager;
 
-	//server_socket用于监听
-	if (listen(server_socket, LENGTH_OF_LISTEN_QUEUE))
-	{
-		printf("Server Listen Failed!");
-		exit(1);
-	}
+	event_manager_init(&event_manager, serverfd, my_event_callback);
 
-	event_pool_t event_pool;
+	event_dispatch(&event_manager);
 
-	event_pool_init(&event_pool, server_socket, my_event_callback);
-
-	event_dispatch(&event_pool);
+	event_magager_destroy(&event_manager);
 
 	socket_destory();
 
 	return 0;
 }
+
+
+#define HELLO_WORLD_SERVER_PORT    6666 
+#define LENGTH_OF_LISTEN_QUEUE	   20
+#define BUFFER_SIZE                1024
+#define FILE_NAME_MAX_SIZE         512
 
 void test()
 {

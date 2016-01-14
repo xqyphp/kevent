@@ -48,6 +48,6 @@ socket_nobblock(socket_t s)
 	//TODO
 #else
 	unsigned long iMode = 1;
-	return ioctlsocket(s, FIONBIO, (unsigned long *)&iMode);//设置成非阻塞模式。
+	return ioctlsocket(s, FIONBIO, (unsigned long *)&iMode);//
 #endif
 }
