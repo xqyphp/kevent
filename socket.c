@@ -114,7 +114,7 @@ client_create(const char* hostname, int portnumber)
 
 	if (connect(client_socket, (struct sockaddr*)&server_addr, server_addr_length) < 0)
 	{
-		printf("Can Not Connect To %d!\n", 6666);
+		printf("Can Not Connect To %d!\n", portnumber);
 		return K_ERROR;
 	}
 	return client_socket;
