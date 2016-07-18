@@ -72,8 +72,9 @@ setnonblocking(socket_t sockfd)
 		assert(opts >= 0);
 #else
 	int opt = 1;
-	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt));
 #endif
+	return K_SUCCESS;
 }
 
 
@@ -144,6 +145,74 @@ server_create(const char* hostname, int portnumber)
 	}
 	return sockfd;
 }
+
+status_t
+socket_send(socket_t sockfd,const char* data,int data_len)
+{
+	int data_send = 0;
+	while (data_send < data_len)
+	{
+		//TODO
+		int dsend = send(sockfd, data + data_send, data_len - data_send, 0);
+		if (dsend < 0){
+			printf("Send Failed:%d!", socket_geterr());
+			return K_ERROR;
+		}
+		data_send += dsend;
+	}
+	return K_SUCCESS;
+}
+
+#define BUF_SIZE 1024
+
+char*
+socket_recv(socket_t sockfd, int* len)
+{
+	int buf_len = BUF_SIZE;
+	char buf[BUF_SIZE];
+	*len = recv(sockfd, buf, buf_len, 0);
+	if (*len < 0){
+		printf("Recv Failed:%d!", socket_geterr());
+		return NULL;
+	}
+	else if (*len == 0){
+		return NULL;
+	}
+	char* rbuf = malloc(*len);
+	memcpy(rbuf, buf, *len);
+	return rbuf;
+}
+
+char*
+socket_recv_all(socket_t sockfd, int* len)
+{
+	char* cache = NULL;
+	int   rlen;
+	int   recv_len = 0;
+	char* rbuf = NULL;
+	while ((cache = socket_recv(sockfd, &rlen)) != NULL){
+		if (rbuf == NULL){
+			rbuf = cache;
+		}
+		else{
+			rbuf = realloc(rbuf, recv_len + rlen);
+			memcpy(rbuf + recv_len, cache, rlen);
+		}
+
+		recv_len += rlen;
+		
+	}
+	*len = recv_len;
+	return rbuf;
+}
+
+
+void
+socket_free(char* data)
+{
+	free(data);
+}
+
 
 status_t
 server_listen(socket_t serverfd)

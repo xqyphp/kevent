@@ -51,6 +51,7 @@ event_magager_destroy(event_manager_t* manager)
 	manager->callback = K_NULL;
 	CloseHandle(manager->completionPort);
 	close(manager->server_socket);
+	return K_SUCCESS;
 }
 
 status_t  event_dispatch(event_manager_t* event_pool)
@@ -96,7 +97,9 @@ status_t  event_dispatch(event_manager_t* event_pool)
 
 		DWORD RecvBytes;
 		DWORD Flags = 0;
+
 		WSARecv(PerHandleData->socket, &(PerIoData->databuff), 1, &RecvBytes, &Flags, &(PerIoData->overlapped), NULL);
+		
 	}
 }
 
@@ -118,11 +121,14 @@ static DWORD WINAPI ServerWorkThread(LPVOID IpParam)
 
 		if (bRet == 0) {
 			printf("GetQueuedCompletionStatus Error->%d\n", GetLastError());
-			return -1;
+			closesocket(PerHandleData->socket);
+			GlobalFree(PerHandleData);
+			GlobalFree(PerIoData);
+			continue;
 		}
 		PerIoData = (LPPER_IO_DATA)CONTAINING_RECORD(IpOverlapped, PER_IO_DATA, overlapped);
 
-
+		
 		if (0 == BytesTransferred) {
 			closesocket(PerHandleData->socket);
 			GlobalFree(PerHandleData);
@@ -141,8 +147,9 @@ static DWORD WINAPI ServerWorkThread(LPVOID IpParam)
 		if (PerHandleData->pool->callback != K_NULL)
 		{
 			PerHandleData->pool->callback(&data);
+			PerHandleData->socket = data.clientfd;
 		}
-
+		closesocket(PerHandleData->socket);
 		ZeroMemory(&(PerIoData->overlapped), sizeof(OVERLAPPED));
 		PerIoData->databuff.len = 1024;
 		PerIoData->databuff.buf = PerIoData->buffer;

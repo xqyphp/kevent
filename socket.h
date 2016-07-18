@@ -40,6 +40,18 @@ socket_destory();
 errno_t
 socket_geterr();
 
+status_t
+socket_send(socket_t sockfd, const char* data, int data_len);
+
+char*
+socket_recv(socket_t sockfd, int* len);
+
+char*
+socket_recv_all(socket_t sockfd,int* len);
+
+void
+socket_free(char* data);
+
 int
 setnonblocking(socket_t sockfd);
 
