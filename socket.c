@@ -178,13 +178,13 @@ socket_recv(socket_t sockfd, int* len)
 	else if (*len == 0){
 		return NULL;
 	}
-	char* rbuf = malloc(*len);
+	char* rbuf = (char*)malloc(*len);
 	memcpy(rbuf, buf, *len);
 	return rbuf;
 }
 
 char*
-socket_recv_all(socket_t sockfd, int* len)
+socket_recv_all(socket_t sockfd, int* len,int max_len)
 {
 	char* cache = NULL;
 	int   rlen;
@@ -195,11 +195,14 @@ socket_recv_all(socket_t sockfd, int* len)
 			rbuf = cache;
 		}
 		else{
-			rbuf = realloc(rbuf, recv_len + rlen);
+			rbuf = (char*)realloc(rbuf, recv_len + rlen);
 			memcpy(rbuf + recv_len, cache, rlen);
+			socket_free(cache);
 		}
 
 		recv_len += rlen;
+		if (recv_len >= max_len && max_len != -1)
+			break;
 		
 	}
 	*len = recv_len;

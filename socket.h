@@ -31,6 +31,12 @@ typedef int                  socklen_t;
 
 #endif
 
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
 status_t
 socket_init();
 
@@ -47,7 +53,7 @@ char*
 socket_recv(socket_t sockfd, int* len);
 
 char*
-socket_recv_all(socket_t sockfd,int* len);
+socket_recv_all(socket_t sockfd, int* len, int max_len);
 
 void
 socket_free(char* data);
@@ -58,4 +64,9 @@ setnonblocking(socket_t sockfd);
 socket_t
 client_create(const char* hostname, int portnumber);
 
+#ifdef __cplusplus
+
+}
+
+#endif
 #endif
